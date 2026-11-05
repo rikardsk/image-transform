@@ -55,7 +55,9 @@ export const App = () => {
           image={image}
           imageMeta={imageMeta}
           previewUrl={result?.url ?? image?.url ?? null}
+          result={result}
           onFileSelect={selectFile}
+          onResultUpdate={setResult}
         />
         <ToolsPanel
           error={error}

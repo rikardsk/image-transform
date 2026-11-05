@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { clampZoom, handleWheelZoom } from './useZoomPan';
 
 describe('clampZoom', () => {
-  it('clamps zoom between min 0.5 and max 5', () => {
+  it('clamps zoom between min 0.5 and max 16', () => {
     expect(clampZoom(0.2)).toBe(0.5);
-    expect(clampZoom(6)).toBe(5);
+    expect(clampZoom(20)).toBe(16);
     expect(clampZoom(1.75)).toBe(1.75);
   });
 });

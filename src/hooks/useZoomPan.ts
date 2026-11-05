@@ -1,7 +1,7 @@
 import { type RefObject, useEffect, useState } from 'react';
 
 export const clampZoom = (value: number): number => {
-  return Math.min(5, Math.max(0.5, Number(value.toFixed(2))));
+  return Math.min(16, Math.max(0.5, Number(value.toFixed(2))));
 };
 
 export const handleWheelZoom = (
@@ -50,8 +50,8 @@ export const useZoomPan = (resetTrigger: unknown) => {
     setPan({ x: 0, y: 0 });
   }, [resetTrigger]);
 
-  const zoomIn = () => setZoom((prev) => clampZoom(prev + 0.25));
-  const zoomOut = () => setZoom((prev) => clampZoom(prev - 0.25));
+  const zoomIn = () => setZoom((prev) => clampZoom(prev >= 4 ? prev + 0.5 : prev + 0.25));
+  const zoomOut = () => setZoom((prev) => clampZoom(prev > 4 ? prev - 0.5 : prev - 0.25));
   const resetZoom = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });

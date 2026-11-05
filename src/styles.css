@@ -198,6 +198,76 @@ a {
   cursor: grab;
 }
 
+.preview-surface.backdrop-dark {
+  background: #111317 !important;
+}
+
+.preview-surface.backdrop-white {
+  background: #ffffff !important;
+}
+
+.backdrop-toolbar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 10%);
+  z-index: 2;
+}
+
+.backdrop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+  transition: all 120ms ease;
+}
+
+.backdrop-btn.active {
+  border-color: var(--accent);
+  background: #f1f4f8;
+}
+
+.backdrop-swatch {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.swatch-checker {
+  background:
+    linear-gradient(45deg, #bbb 25%, transparent 25%),
+    linear-gradient(-45deg, #bbb 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #bbb 75%),
+    linear-gradient(-45deg, transparent 75%, #bbb 75%);
+  background-color: #eee;
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.swatch-dark {
+  background: #111317;
+}
+
+.swatch-white {
+  background: #ffffff;
+}
+
 .preview-surface.panning {
   cursor: grabbing;
   user-select: none;
@@ -211,6 +281,10 @@ a {
   user-select: none;
   pointer-events: none;
   transform-origin: center center;
+}
+
+.preview-surface.deep-zoom img {
+  image-rendering: pixelated;
 }
 
 .zoom-toolbar {
@@ -246,6 +320,114 @@ a {
 
 .zoom-btn:hover:not(:disabled) {
   background: #f1f4f8;
+}
+
+.preview-surface.brush-active {
+  cursor: crosshair;
+}
+
+.brush-toolbar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 10%);
+  z-index: 2;
+}
+
+.tool-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.tool-toggle-btn.active {
+  background: #ffffff;
+  color: var(--accent-strong);
+  border-color: var(--line);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.brush-size-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 6px;
+  border-left: 1px solid var(--line);
+}
+
+.radius-dropdown-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.brush-radius-select {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+.brush-radius-select:focus {
+  border-color: var(--accent);
+}
+
+.undo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+}
+
+.undo-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.brush-cursor-ring {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  background: rgb(15 139 141 / 10%);
+  z-index: 100;
 }
 
 .zoom-btn:disabled {
