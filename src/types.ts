@@ -1,5 +1,8 @@
 export type OutputFormat = 'image/png' | 'image/jpeg' | 'image/webp';
 
+export type BackgroundMode = 'auto' | 'custom';
+export type ReplacementType = 'transparent' | 'color';
+
 export type UploadedImage = {
   file: File;
   url: string;
@@ -10,8 +13,13 @@ export type UploadedImage = {
 
 export type BackgroundRemovalSettings = {
   enabled: boolean;
+  mode?: BackgroundMode;
+  customColor?: string;
+  replacementType?: ReplacementType;
+  replacementColor?: string;
   tolerance: number;
   feather: number;
+  defringe?: number;
 };
 
 export type ExportSettings = {

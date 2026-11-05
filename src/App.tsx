@@ -8,8 +8,13 @@ import { createExportFileName, loadImage, transformImage } from './utils/imageTr
 const defaultSettings: TransformSettings = {
   background: {
     enabled: true,
+    mode: 'auto',
+    customColor: '#ffffff',
+    replacementType: 'transparent',
+    replacementColor: '#1e293b',
     tolerance: 42,
     feather: 18,
+    defringe: 35,
   },
   export: {
     format: 'image/png',
