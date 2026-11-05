@@ -50,6 +50,14 @@ export const transformImage = async (
 
   if (settings.background.enabled) {
     removeSampledBackground(context, canvas, settings.background);
+    if (settings.background.filterEdgeWhiteness && settings.background.edgeWhiteness !== undefined) {
+      filterEdgeWhiteness(
+        context,
+        canvas,
+        settings.background.edgeWhiteness,
+        settings.background.whitenessEdgeOnly ?? true,
+      );
+    }
     applyDefringe(context, canvas, settings.background);
     applyReplacementBackground(context, canvas, settings.background);
   }
@@ -231,6 +239,82 @@ const isBoundaryPixel = (
   });
 };
 
+export const isPixelWhiteOrGray = (
+  red: number,
+  green: number,
+  blue: number,
+  whitenessPercent: number,
+): boolean => {
+  const maxChannel = Math.max(red, green, blue);
+  const minChannel = Math.min(red, green, blue);
+  if (maxChannel - minChannel > 75) {
+    return false;
+  }
+
+  const brightness = (red + green + blue) / 3;
+  const factor = Math.min(100, Math.max(0, whitenessPercent)) / 100;
+  const threshold = 230 - factor * (230 - 90);
+
+  return brightness >= threshold;
+};
+
+export const isNearAlphaEdge = (
+  pixels: Uint8ClampedArray,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number = 6,
+): boolean => {
+  for (let dy = -radius; dy <= radius; dy++) {
+    for (let dx = -radius; dx <= radius; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+      if (pixels[(ny * width + nx) * 4 + 3] < 250) return true;
+    }
+  }
+
+  return false;
+};
+
+export const filterEdgeWhiteness = (
+  context: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  whitenessPercent: number,
+  edgeOnly: boolean = false,
+): void => {
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
+  const { width, height } = canvas;
+
+  for (let idx = 0; idx < pixels.length; idx += 4) {
+    if (pixels[idx + 3] === 0) continue;
+    if (!isPixelWhiteOrGray(pixels[idx], pixels[idx + 1], pixels[idx + 2], whitenessPercent)) {
+      continue;
+    }
+    if (edgeOnly && !shouldFilterEdgePixel(pixels, idx, width, height)) {
+      continue;
+    }
+    pixels[idx + 3] = 0;
+  }
+
+  context.putImageData(imageData, 0, 0);
+};
+
+export const shouldFilterEdgePixel = (
+  pixels: Uint8ClampedArray,
+  idx: number,
+  width: number,
+  height: number,
+): boolean => {
+  if (pixels[idx + 3] < 250) return true;
+  const x = (idx / 4) % width;
+  const y = Math.floor((idx / 4) / width);
+  return isNearAlphaEdge(pixels, x, y, width, height, 8);
+};
+
 export const resolveTargetColor = (
   pixels: Uint8ClampedArray,
   width: number,
@@ -294,17 +378,17 @@ export const cleanHex = (input: string): string => {
 };
 
 export const normalizeHexColor = (input: string): string | null => {
-  const cleaned = cleanHex(input);
-  if (cleaned.length === 6) {
-    return `#${cleaned.toLowerCase()}`;
+  const trimmed = input.trim().replace(/^#/, '');
+  if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(trimmed)) {
+    return null;
   }
 
-  if (cleaned.length === 3) {
-    const [red, green, blue] = cleaned;
+  if (trimmed.length === 3) {
+    const [red, green, blue] = trimmed;
     return `#${red}${red}${green}${green}${blue}${blue}`.toLowerCase();
   }
 
-  return null;
+  return `#${trimmed.toLowerCase()}`;
 };
 
 export const hexToRgba = (hex: string): Rgba => {

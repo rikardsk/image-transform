@@ -326,6 +326,51 @@ const BackgroundSliders = ({
         background: { ...settings.background, defringe },
       })}
     />
+    <EdgeWhitenessSection settings={settings} onSettingsChange={onSettingsChange} />
+  </>
+);
+
+const EdgeWhitenessSection = ({
+  settings,
+  onSettingsChange,
+}: Pick<ToolsPanelProps, 'settings' | 'onSettingsChange'>) => (
+  <>
+    <label className="toggle-row">
+      <span>Filter whiteness / gray</span>
+      <input
+        checked={settings.background.filterEdgeWhiteness ?? false}
+        type="checkbox"
+        onChange={(event) => onSettingsChange({
+          ...settings,
+          background: { ...settings.background, filterEdgeWhiteness: event.target.checked },
+        })}
+      />
+    </label>
+    {settings.background.filterEdgeWhiteness && (
+      <>
+        <RangeField
+          label="Whiteness (0% White - 100% Gray)"
+          max={100}
+          min={0}
+          value={settings.background.edgeWhiteness ?? 50}
+          onChange={(edgeWhiteness) => onSettingsChange({
+            ...settings,
+            background: { ...settings.background, edgeWhiteness },
+          })}
+        />
+        <label className="toggle-row nested-toggle">
+          <span>Only near edges</span>
+          <input
+            checked={settings.background.whitenessEdgeOnly ?? true}
+            type="checkbox"
+            onChange={(event) => onSettingsChange({
+              ...settings,
+              background: { ...settings.background, whitenessEdgeOnly: event.target.checked },
+            })}
+          />
+        </label>
+      </>
+    )}
   </>
 );
 

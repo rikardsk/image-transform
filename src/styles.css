@@ -510,6 +510,17 @@ a {
   accent-color: var(--accent);
 }
 
+.toggle-row.nested-toggle {
+  margin: 6px 0 12px 14px;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.toggle-row.nested-toggle input {
+  width: 34px;
+  height: 20px;
+}
+
 .mode-section {
   display: grid;
   gap: 10px;

@@ -20,6 +20,9 @@ export type BackgroundRemovalSettings = {
   tolerance: number;
   feather: number;
   defringe?: number;
+  filterEdgeWhiteness?: boolean;
+  edgeWhiteness?: number;
+  whitenessEdgeOnly?: boolean;
 };
 
 export type ExportSettings = {

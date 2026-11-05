@@ -4,10 +4,14 @@ import {
   cleanHex,
   createExportFileName,
   decontaminateRgb,
+  filterEdgeWhiteness,
   getBackgroundOpacity,
   getConsensusSample,
   hexToRgba,
+  isNearAlphaEdge,
+  isPixelWhiteOrGray,
   normalizeHexColor,
+  shouldFilterEdgePixel,
   type Rgba,
 } from './imageTransforms';
 
@@ -160,5 +164,89 @@ describe('decontaminateRgb', () => {
     expect(r).toBeLessThan(220);
     expect(g).toBeLessThan(220);
     expect(b).toBeLessThan(220);
+  });
+});
+
+describe('isPixelWhiteOrGray', () => {
+  it('at 0% whiteness, matches pure white and light off-white', () => {
+    expect(isPixelWhiteOrGray(255, 255, 255, 0)).toBe(true);
+    expect(isPixelWhiteOrGray(235, 235, 235, 0)).toBe(true);
+    expect(isPixelWhiteOrGray(210, 210, 210, 0)).toBe(false);
+  });
+
+  it('at 100% whiteness, matches down to mid/dark gray', () => {
+    expect(isPixelWhiteOrGray(255, 255, 255, 100)).toBe(true);
+    expect(isPixelWhiteOrGray(140, 140, 140, 100)).toBe(true);
+    expect(isPixelWhiteOrGray(95, 95, 95, 100)).toBe(true);
+    expect(isPixelWhiteOrGray(70, 70, 70, 100)).toBe(false);
+  });
+
+  it('rejects saturated colors even if bright', () => {
+    // bright green moss
+    expect(isPixelWhiteOrGray(50, 240, 50, 100)).toBe(false);
+    // cyan glowing mushroom
+    expect(isPixelWhiteOrGray(40, 210, 240, 100)).toBe(false);
+  });
+});
+
+describe('isNearAlphaEdge', () => {
+  it('returns true when a neighbor is transparent within radius', () => {
+    const width = 5;
+    const height = 5;
+    const pixels = new Uint8ClampedArray(width * height * 4);
+    // make all opaque except (0,0)
+    for (let i = 0; i < pixels.length; i += 4) {
+      pixels[i + 3] = 255;
+    }
+    pixels[3] = 0; // (0,0) is transparent
+
+    expect(isNearAlphaEdge(pixels, 1, 1, width, height, 2)).toBe(true);
+    expect(isNearAlphaEdge(pixels, 4, 4, width, height, 2)).toBe(false);
+  });
+});
+
+describe('filterEdgeWhiteness', () => {
+  it('when edgeOnly is false, removes matching white/gray pixels everywhere', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 3;
+    canvas.height = 3;
+    const context = canvas.getContext('2d')!;
+    const imageData = context.createImageData(3, 3);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      imageData.data[i] = 200;
+      imageData.data[i + 1] = 200;
+      imageData.data[i + 2] = 200;
+      imageData.data[i + 3] = 255;
+    }
+    context.putImageData(imageData, 0, 0);
+
+    filterEdgeWhiteness(context, canvas, 50, false);
+
+    const result = context.getImageData(0, 0, 3, 3).data;
+    expect(result[4 * 4 + 3]).toBe(0);
+  });
+
+  it('when edgeOnly is true, protects center pixels not near transparent edges', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 20;
+    canvas.height = 20;
+    const context = canvas.getContext('2d')!;
+    const imageData = context.createImageData(20, 20);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      imageData.data[i] = 200;
+      imageData.data[i + 1] = 200;
+      imageData.data[i + 2] = 200;
+      imageData.data[i + 3] = 255;
+    }
+    // Only pixel (0,0) is transparent
+    imageData.data[3] = 0;
+    context.putImageData(imageData, 0, 0);
+
+    filterEdgeWhiteness(context, canvas, 50, true);
+
+    const result = context.getImageData(0, 0, 20, 20).data;
+    // (19, 19) is far from (0,0) (radius is 8), so its alpha remains 255
+    const idxFar = (19 * 20 + 19) * 4;
+    expect(result[idxFar + 3]).toBe(255);
   });
 });

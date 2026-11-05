@@ -15,6 +15,9 @@ const defaultSettings: TransformSettings = {
     tolerance: 42,
     feather: 18,
     defringe: 35,
+    filterEdgeWhiteness: false,
+    edgeWhiteness: 50,
+    whitenessEdgeOnly: true,
   },
   export: {
     format: 'image/png',
